@@ -18,5 +18,12 @@
             {
                 return Ok(_villas);
             }
+
+            [HttpGet]
+            [Route("{id}")]
+            public IActionResult GetVillaById([FromRoute] int id)
+            {
+                return Ok($"Villa Id:- {id}");
+            }
         }
     }
