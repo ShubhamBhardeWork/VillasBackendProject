@@ -59,14 +59,22 @@ namespace Villas.API.Controllers
             {
                 if(id < 1)
                 {
-                    return BadRequest("Please enter valid id which is greater than 0.");
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Please enter a valid id greater than 0."
+                    });
                 }
 
                 var existingVilla = await _context.Villas.AsNoTracking().FirstOrDefaultAsync(v => v.Id == id);
 
                 if(existingVilla is null)
                 {
-                    return NotFound($"Villa with Id {id} not found.");
+                    return NotFound(new
+                    {
+                        Success = false,
+                        Message = $"Villa with Id {id} not found."
+                    });
                 }
 
                 var villaResponse = new VillaResponse
