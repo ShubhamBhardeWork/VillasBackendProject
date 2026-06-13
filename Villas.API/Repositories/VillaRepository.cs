@@ -12,6 +12,13 @@ namespace Villas.API.Repositories
             _context = context;
         }
 
+        public async Task<Villa> CreateAsync(Villa villa)
+        {
+            await _context.Villas.AddAsync(villa);
+            await _context.SaveChangesAsync();
+            return villa;
+        }
+
         public async Task<IEnumerable<Villa>> GetAllAsync()
         {
             return await _context.Villas.AsNoTracking().ToListAsync();

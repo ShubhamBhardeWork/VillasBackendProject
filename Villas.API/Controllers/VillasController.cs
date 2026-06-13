@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Villas.API.DTOs;
+using Villas.API.Models.Domain;
 using Villas.API.Repositories;
 
 namespace Villas.API.Controllers
@@ -105,6 +106,60 @@ namespace Villas.API.Controllers
                     }
                 );
 
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<VillaResponse>> CreateVilla([FromBody] CreateVillaRequest createVillaRequest)
+        {
+            try
+            {
+                if(createVillaRequest is null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Villa is required."
+                    });
+                }
+
+                var villa = new Villa
+                {
+                    Name = createVillaRequest.Name,
+                    Details = createVillaRequest.Details,
+                    Rate = createVillaRequest.Rate,
+                    Sqft = createVillaRequest.Sqft,
+                    Occupancy = createVillaRequest.Occupancy,
+                    ImageUrl = createVillaRequest.ImageUrl
+                };
+
+                var createdVilla = await _villaRepository.CreateAsync(villa);
+
+                var villaResponse = new VillaResponse
+                {
+                    Id = createdVilla.Id,
+                    Name = createdVilla.Name,
+                    Details = createdVilla.Details,
+                    Rate = createdVilla.Rate,
+                    Sqft = createdVilla.Sqft,
+                    Occupancy = createdVilla.Occupancy,
+                    ImageUrl = createdVilla.ImageUrl,
+                    CreatedAt = createdVilla.CreatedAt,
+                    LastUpdatedAt = createdVilla.LastUpdatedAt
+                };
+
+                return CreatedAtAction(nameof(GetVillaById), new { id = villaResponse.Id }, villaResponse);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Success = false,
+                    //Message = "Something went wrong.",
+                    Message = "Error occurred while creating the villa."
+                });
+                
             }
         }
     }

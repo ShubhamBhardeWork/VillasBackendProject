@@ -6,5 +6,6 @@ namespace Villas.API.Repositories
     {
         Task<IEnumerable<Villa>> GetAllAsync();
         Task<Villa?> GetByIdAsync(int id);
+        Task<Villa> CreateAsync(Villa villa);
     }
 }
