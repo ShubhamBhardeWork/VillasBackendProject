@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Villas.API.Data;
+using Villas.API.Repositories;
 
 namespace Villas.API
 {
@@ -13,6 +14,8 @@ namespace Villas.API
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
             builder.Services.AddDbContext<VillaDbContext>(options => options.UseSqlServer(connectionString));
+
+            builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 
             builder.Services.AddOpenApi();
             builder.Services.AddControllers();

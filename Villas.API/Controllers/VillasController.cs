@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Villas.API.Data;
 using Villas.API.DTOs;
+using Villas.API.Repositories;
 
 namespace Villas.API.Controllers
 {
@@ -9,10 +8,10 @@ namespace Villas.API.Controllers
     [ApiController]
     public class VillasController : ControllerBase
     {
-        private readonly VillaDbContext _context;
-        public VillasController(VillaDbContext context)
+        private readonly IVillaRepository _villaRepository;
+        public VillasController(IVillaRepository villaRepository)
         {
-            _context = context;
+            _villaRepository = villaRepository;
         }
 
 
@@ -21,21 +20,20 @@ namespace Villas.API.Controllers
         {
             try
             {
-                var villasResponse = await _context.Villas
-                    .AsNoTracking()
-                    .Select(v => new VillaResponse
-                    {
-                        Id = v.Id,
-                        Name = v.Name,
-                        Details = v.Details,
-                        Rate = v.Rate,
-                        Sqft = v.Sqft,
-                        Occupancy = v.Occupancy,
-                        ImageUrl = v.ImageUrl,
-                        CreatedAt = v.CreatedAt,
-                        LastUpdatedAt = v.LastUpdatedAt
-                    })
-                    .ToListAsync();
+                var villas = await _villaRepository.GetAllAsync();
+
+                var villasResponse = villas.Select(v => new VillaResponse
+                {
+                    Id = v.Id,
+                    Name = v.Name,
+                    Details = v.Details,
+                    Rate = v.Rate,
+                    Sqft = v.Sqft,
+                    Occupancy = v.Occupancy,
+                    ImageUrl = v.ImageUrl,
+                    CreatedAt = v.CreatedAt,
+                    LastUpdatedAt = v.LastUpdatedAt
+                }).ToList();
 
                 //throw new Exception("Test exception for error handling validation.");
 
@@ -68,7 +66,7 @@ namespace Villas.API.Controllers
                     });
                 }
 
-                var existingVilla = await _context.Villas.AsNoTracking().FirstOrDefaultAsync(v => v.Id == id);
+                var existingVilla = await _villaRepository.GetByIdAsync(id);
 
                 if(existingVilla is null)
                 {
