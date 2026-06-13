@@ -41,5 +41,25 @@ namespace Villas.API.Repositories
         {
             return await _context.Villas.AsNoTracking().FirstOrDefaultAsync(v => v.Id == id);
         }
+
+        public async Task<Villa?> UpdateAsync(int id, Villa villa)
+        {
+            var existingVilla = await _context.Villas.FirstOrDefaultAsync(v => v.Id == id);
+            if (existingVilla is null)
+            {
+                return null;
+            }
+
+            existingVilla.Name = villa.Name;
+            existingVilla.Details = villa.Details;
+            existingVilla.Rate = villa.Rate;
+            existingVilla.Sqft = villa.Sqft;
+            existingVilla.Occupancy = villa.Occupancy;
+            existingVilla.ImageUrl = villa.ImageUrl;
+            existingVilla.LastUpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return existingVilla;
+        }
     }
 }

@@ -163,6 +163,84 @@ namespace Villas.API.Controllers
             }
         }
 
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<VillaResponse>> UpdateVilla([FromRoute] int id, [FromBody] UpdateVillaRequest updateVillaRequest)
+        {
+            try
+            {
+                // validate request like id should be greater than 0 and villa should not null
+                // map dto to domain model
+                // call repository & they return updated villa or they should return null
+                // if null return NotFound()
+                // map domain model to dto
+                // else send updatedVilla
+
+                if(id < 1)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "please enter a valid id greater than 0."
+                    });
+                }
+
+                if(updateVillaRequest is null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Villa is required."
+                    });
+                }
+
+                var villa = new Villa
+                {
+                    Name = updateVillaRequest.Name,
+                    Details = updateVillaRequest.Details,
+                    Rate = updateVillaRequest.Rate,
+                    Sqft = updateVillaRequest.Sqft,
+                    Occupancy = updateVillaRequest.Occupancy,
+                    ImageUrl = updateVillaRequest.ImageUrl
+                };
+
+                var updatedVilla = await _villaRepository.UpdateAsync(id, villa);
+
+                if(updatedVilla is null)
+                {
+                    return NotFound(new 
+                    {
+                        Success = false,
+                        Message = $"Villa with id {id} not found."
+                    });
+                }
+
+                var villaResponse = new VillaResponse
+                {
+                    Id = updatedVilla.Id,
+                    Name = updatedVilla.Name,
+                    Details = updatedVilla.Details,
+                    Rate = updatedVilla.Rate,
+                    Sqft = updatedVilla.Sqft,
+                    Occupancy = updatedVilla.Occupancy,
+                    ImageUrl = updatedVilla.ImageUrl,
+                    CreatedAt = updatedVilla.CreatedAt,
+                    LastUpdatedAt = updatedVilla.LastUpdatedAt
+                };
+
+                return Ok(villaResponse);
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Success = false,
+                    Message = "Error occurred while updating the villa."
+                });
+                
+            }
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteVilla([FromRoute] int id)
         {
