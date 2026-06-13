@@ -33,7 +33,7 @@ namespace Villas.API.Controllers
                     ImageUrl = v.ImageUrl,
                     CreatedAt = v.CreatedAt,
                     LastUpdatedAt = v.LastUpdatedAt
-                });
+                }).ToList();
 
                 //throw new Exception("Test exception for error handling validation.");
 
