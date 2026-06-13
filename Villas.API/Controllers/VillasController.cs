@@ -45,7 +45,7 @@ namespace Villas.API.Controllers
                     StatusCodes.Status500InternalServerError,
                     new
                     {   
-                        Status = false,
+                        Success = false,
                         Message = "Something went wrong.",
                     }
                 );
