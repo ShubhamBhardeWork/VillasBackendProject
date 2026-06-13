@@ -21,19 +21,21 @@ namespace Villas.API.Controllers
         {
             try
             {
-                var villas = await _context.Villas.AsNoTracking().ToListAsync();
-                var villasResponse = villas.Select(v => new VillaResponse
-                {
-                    Id = v.Id,
-                    Name = v.Name,
-                    Details = v.Details,
-                    Rate = v.Rate,
-                    Sqft = v.Sqft,
-                    Occupancy = v.Occupancy,
-                    ImageUrl = v.ImageUrl,
-                    CreatedAt = v.CreatedAt,
-                    LastUpdatedAt = v.LastUpdatedAt
-                }).ToList();
+                var villasResponse = await _context.Villas
+                    .AsNoTracking()
+                    .Select(v => new VillaResponse
+                    {
+                        Id = v.Id,
+                        Name = v.Name,
+                        Details = v.Details,
+                        Rate = v.Rate,
+                        Sqft = v.Sqft,
+                        Occupancy = v.Occupancy,
+                        ImageUrl = v.ImageUrl,
+                        CreatedAt = v.CreatedAt,
+                        LastUpdatedAt = v.LastUpdatedAt
+                    })
+                    .ToListAsync();
 
                 //throw new Exception("Test exception for error handling validation.");
 
