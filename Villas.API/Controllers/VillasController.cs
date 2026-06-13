@@ -162,5 +162,44 @@ namespace Villas.API.Controllers
                 
             }
         }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteVilla([FromRoute] int id)
+        {
+            try
+            {
+                if(id < 1)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "please enter a valid id greater than 0."
+                    });
+                }
+
+                var isVillaDeleted = await _villaRepository.DeleteAsync(id);
+
+                if(!isVillaDeleted)
+                {
+                    return NotFound(new
+                    {
+                        Success = false,
+                        Message = $"Villa with Id {id} not found."
+                    });
+                }
+
+                return NoContent();
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode( StatusCodes.Status500InternalServerError,  new 
+                { 
+                    Success = false,
+                    Message = "Error occurred while deleting the villa."
+                });
+            }
+        }
+
     }
 }

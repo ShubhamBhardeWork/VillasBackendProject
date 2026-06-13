@@ -19,6 +19,19 @@ namespace Villas.API.Repositories
             return villa;
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var existingVilla = await _context.Villas.FirstOrDefaultAsync(v => v.Id == id);
+            if (existingVilla is null)
+            {
+                return false;
+            }
+
+            _context.Villas.Remove(existingVilla);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<IEnumerable<Villa>> GetAllAsync()
         {
             return await _context.Villas.AsNoTracking().ToListAsync();
