@@ -1,10 +1,8 @@
-
-using AutoMapper;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Villas.API.Data;
-using Villas.API.Mappings;
+using Villas.API.Middlewares;
 using Villas.API.Repositories;
 using Villas.API.Validators;
 
@@ -46,6 +44,7 @@ namespace Villas.API
 
             app.UseAuthorization();
 
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             app.MapControllers();
 
