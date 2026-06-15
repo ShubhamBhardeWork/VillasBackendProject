@@ -3,6 +3,7 @@ using FluentValidation;
 using Villas.API.DTOs;
 using Villas.API.Models.Domain;
 using Villas.API.Repositories;
+using AutoMapper;
 
 namespace Villas.API.Controllers
 {
@@ -13,12 +14,14 @@ namespace Villas.API.Controllers
         private readonly IVillaRepository _villaRepository;
         private readonly IValidator<CreateVillaRequest> _createValidator;
         private readonly IValidator<UpdateVillaRequest> _updateValidator;
+        private readonly IMapper _mapper;
 
-        public VillasController(IVillaRepository villaRepository, IValidator<CreateVillaRequest> createValidator, IValidator<UpdateVillaRequest> updateValidator)
+        public VillasController(IVillaRepository villaRepository, IValidator<CreateVillaRequest> createValidator, IValidator<UpdateVillaRequest> updateValidator, IMapper mapper)
         {
             _villaRepository = villaRepository;
             _createValidator = createValidator;
             _updateValidator = updateValidator;
+            _mapper = mapper;
         }
 
 
@@ -29,18 +32,7 @@ namespace Villas.API.Controllers
             {
                 var villas = await _villaRepository.GetAllAsync();
 
-                var villasResponse = villas.Select(v => new VillaResponse
-                {
-                    Id = v.Id,
-                    Name = v.Name,
-                    Details = v.Details,
-                    Rate = v.Rate,
-                    Sqft = v.Sqft,
-                    Occupancy = v.Occupancy,
-                    ImageUrl = v.ImageUrl,
-                    CreatedAt = v.CreatedAt,
-                    LastUpdatedAt = v.LastUpdatedAt
-                }).ToList();
+                var villasResponse = _mapper.Map<List<VillaResponse>>(villas);
 
                 //throw new Exception("Test exception for error handling validation.");
 
@@ -84,18 +76,7 @@ namespace Villas.API.Controllers
                     });
                 }
 
-                var villaResponse = new VillaResponse
-                {
-                    Id = existingVilla.Id,
-                    Name = existingVilla.Name,
-                    Details = existingVilla.Details,
-                    Rate = existingVilla.Rate,
-                    Sqft = existingVilla.Sqft,
-                    Occupancy = existingVilla.Occupancy,
-                    ImageUrl = existingVilla.ImageUrl,
-                    CreatedAt = existingVilla.CreatedAt,
-                    LastUpdatedAt = existingVilla.LastUpdatedAt
-                };
+                var villaResponse = _mapper.Map<VillaResponse>(existingVilla);
 
                 return Ok(villaResponse);
 
@@ -136,30 +117,11 @@ namespace Villas.API.Controllers
                     return BadRequest(validationResult.Errors);
                 }
 
-                var villa = new Villa
-                {
-                    Name = createVillaRequest.Name,
-                    Details = createVillaRequest.Details,
-                    Rate = createVillaRequest.Rate,
-                    Sqft = createVillaRequest.Sqft,
-                    Occupancy = createVillaRequest.Occupancy,
-                    ImageUrl = createVillaRequest.ImageUrl
-                };
+                var villa = _mapper.Map<Villa>(createVillaRequest);
 
                 var createdVilla = await _villaRepository.CreateAsync(villa);
 
-                var villaResponse = new VillaResponse
-                {
-                    Id = createdVilla.Id,
-                    Name = createdVilla.Name,
-                    Details = createdVilla.Details,
-                    Rate = createdVilla.Rate,
-                    Sqft = createdVilla.Sqft,
-                    Occupancy = createdVilla.Occupancy,
-                    ImageUrl = createdVilla.ImageUrl,
-                    CreatedAt = createdVilla.CreatedAt,
-                    LastUpdatedAt = createdVilla.LastUpdatedAt
-                };
+                var villaResponse = _mapper.Map<VillaResponse>(createdVilla);
 
                 return CreatedAtAction(nameof(GetVillaById), new { id = villaResponse.Id }, villaResponse);
 
@@ -213,15 +175,7 @@ namespace Villas.API.Controllers
                     return BadRequest(validationResult.Errors);
                 }
 
-                var villa = new Villa
-                {
-                    Name = updateVillaRequest.Name,
-                    Details = updateVillaRequest.Details,
-                    Rate = updateVillaRequest.Rate,
-                    Sqft = updateVillaRequest.Sqft,
-                    Occupancy = updateVillaRequest.Occupancy,
-                    ImageUrl = updateVillaRequest.ImageUrl
-                };
+                var villa = _mapper.Map<Villa>(updateVillaRequest);
 
                 var updatedVilla = await _villaRepository.UpdateAsync(id, villa);
 
@@ -234,18 +188,8 @@ namespace Villas.API.Controllers
                     });
                 }
 
-                var villaResponse = new VillaResponse
-                {
-                    Id = updatedVilla.Id,
-                    Name = updatedVilla.Name,
-                    Details = updatedVilla.Details,
-                    Rate = updatedVilla.Rate,
-                    Sqft = updatedVilla.Sqft,
-                    Occupancy = updatedVilla.Occupancy,
-                    ImageUrl = updatedVilla.ImageUrl,
-                    CreatedAt = updatedVilla.CreatedAt,
-                    LastUpdatedAt = updatedVilla.LastUpdatedAt
-                };
+
+                var villaResponse = _mapper.Map<VillaResponse>(updatedVilla);
 
                 return Ok(villaResponse);
             }
