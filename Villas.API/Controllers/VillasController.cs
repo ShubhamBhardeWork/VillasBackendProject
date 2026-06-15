@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 using Villas.API.DTOs;
 using Villas.API.Models.Domain;
 using Villas.API.Repositories;
@@ -10,9 +11,14 @@ namespace Villas.API.Controllers
     public class VillasController : ControllerBase
     {
         private readonly IVillaRepository _villaRepository;
-        public VillasController(IVillaRepository villaRepository)
+        private readonly IValidator<CreateVillaRequest> _createValidator;
+        private readonly IValidator<UpdateVillaRequest> _updateValidator;
+
+        public VillasController(IVillaRepository villaRepository, IValidator<CreateVillaRequest> createValidator, IValidator<UpdateVillaRequest> updateValidator)
         {
             _villaRepository = villaRepository;
+            _createValidator = createValidator;
+            _updateValidator = updateValidator;
         }
 
 
@@ -123,6 +129,13 @@ namespace Villas.API.Controllers
                     });
                 }
 
+                var validationResult = await _createValidator.ValidateAsync(createVillaRequest);
+
+                if (!validationResult.IsValid)
+                {
+                    return BadRequest(validationResult.Errors);
+                }
+
                 var villa = new Villa
                 {
                     Name = createVillaRequest.Name,
@@ -191,6 +204,13 @@ namespace Villas.API.Controllers
                         Success = false,
                         Message = "Villa is required."
                     });
+                }
+
+                var validationResult = await _updateValidator.ValidateAsync(updateVillaRequest);
+
+                if(!validationResult.IsValid)
+                {
+                    return BadRequest(validationResult.Errors);
                 }
 
                 var villa = new Villa

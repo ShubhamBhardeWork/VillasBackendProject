@@ -1,8 +1,10 @@
 
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Villas.API.Data;
 using Villas.API.Repositories;
+using Villas.API.Validators;
 
 namespace Villas.API
 {
@@ -16,6 +18,9 @@ namespace Villas.API
             builder.Services.AddDbContext<VillaDbContext>(options => options.UseSqlServer(connectionString));
 
             builder.Services.AddScoped<IVillaRepository, VillaRepository>();
+
+            //builder.Services.AddFluentValidationAutoValidation(); (old way)
+            builder.Services.AddValidatorsFromAssemblyContaining<CreateVillaRequestValidator>();
 
             builder.Services.AddOpenApi();
             builder.Services.AddControllers();
