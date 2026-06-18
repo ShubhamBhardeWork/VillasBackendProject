@@ -69,16 +69,6 @@ namespace Villas.API.Controllers
         [HttpPost]
         public async Task<ActionResult<VillaResponse>> CreateVilla([FromBody] CreateVillaRequest createVillaRequest)
         {
-            
-            if(createVillaRequest is null)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Villa is required."
-                });
-            }
-            
             var validationResult = await _createValidator.ValidateAsync(createVillaRequest);
 
             if (!validationResult.IsValid)
@@ -122,15 +112,6 @@ namespace Villas.API.Controllers
                 });
             }
             
-            if(updateVillaRequest is null)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Villa is required."
-                });
-            }
-
             var validationResult = await _updateValidator.ValidateAsync(updateVillaRequest);
             
             if(!validationResult.IsValid)
