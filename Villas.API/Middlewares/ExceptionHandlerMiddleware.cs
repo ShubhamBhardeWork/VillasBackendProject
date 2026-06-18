@@ -1,4 +1,6 @@
-﻿namespace Villas.API.Middlewares
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Villas.API.Middlewares
 {
     public class ExceptionHandlerMiddleware
     {
@@ -15,6 +17,23 @@
             {
                 await _next(context);
             }
+
+            catch (DbUpdateException)
+            {
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.StatusCode = StatusCodes.Status409Conflict;
+                    context.Response.ContentType = "application/json";
+
+                    var errorResponse = new
+                    {
+                        Success = false,
+                        Message = "Villa name already exists."
+                    };
+                    await context.Response.WriteAsJsonAsync(errorResponse);
+                }
+            }
+
             catch (Exception ex)
             {
                 if (!context.Response.HasStarted)
