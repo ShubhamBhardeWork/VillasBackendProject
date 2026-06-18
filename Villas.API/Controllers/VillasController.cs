@@ -138,7 +138,7 @@ namespace Villas.API.Controllers
 
             var villaName = updateVillaRequest.Name.Trim();
 
-            var isVillaNameExists = await _villaRepository.IsVillaNameExistsAsync(villaName);
+            var isVillaNameExists = await _villaRepository.IsVillaNameExistsAsync(villaName, id);
 
             if (isVillaNameExists)
             {
