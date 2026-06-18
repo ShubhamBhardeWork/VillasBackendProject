@@ -82,6 +82,9 @@ namespace Villas.API.Data
 
             // data seeding
             modelBuilder.Entity<Villa>().HasData(villas);
+
+            // unique indexing
+            modelBuilder.Entity<Villa>().HasIndex(v => v.Name).IsUnique();
         }
 
     }
