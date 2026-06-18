@@ -86,7 +86,9 @@ namespace Villas.API.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var villaName = createVillaRequest.Name.Trim();
+            createVillaRequest.Name = createVillaRequest.Name.Trim();
+
+            var villaName = createVillaRequest.Name;
 
             var isVillaNameExists = await _villaRepository.IsVillaNameExistsAsync(villaName);
 
@@ -136,7 +138,9 @@ namespace Villas.API.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var villaName = updateVillaRequest.Name.Trim();
+            updateVillaRequest.Name = updateVillaRequest.Name.Trim();
+
+            var villaName = updateVillaRequest.Name;
 
             var isVillaNameExists = await _villaRepository.IsVillaNameExistsAsync(villaName, id);
 
