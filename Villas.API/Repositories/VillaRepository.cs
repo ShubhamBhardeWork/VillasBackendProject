@@ -42,6 +42,11 @@ namespace Villas.API.Repositories
             return await _context.Villas.AsNoTracking().FirstOrDefaultAsync(v => v.Id == id);
         }
 
+        public async Task<bool> IsVillaNameExistsAsync(string name)
+        {
+            return await _context.Villas.AnyAsync(v => v.Name == name);
+        }
+
         public async Task<Villa?> UpdateAsync(int id, Villa villa)
         {
             var existingVilla = await _context.Villas.FirstOrDefaultAsync(v => v.Id == id);

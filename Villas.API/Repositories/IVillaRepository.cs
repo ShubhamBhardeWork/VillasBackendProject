@@ -9,5 +9,6 @@ namespace Villas.API.Repositories
         Task<Villa> CreateAsync(Villa villa);
         Task<Villa?> UpdateAsync(int id, Villa villa);
         Task<bool> DeleteAsync(int id);
+        Task<bool> IsVillaNameExistsAsync(string name);
     }
 }

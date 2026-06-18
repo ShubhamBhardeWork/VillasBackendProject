@@ -85,6 +85,19 @@ namespace Villas.API.Controllers
             {
                 return BadRequest(validationResult.Errors);
             }
+
+            var villaName = createVillaRequest.Name.Trim();
+
+            var isVillaNameExists = await _villaRepository.IsVillaNameExistsAsync(villaName);
+
+            if(isVillaNameExists)
+            {
+                return Conflict(new
+                {
+                    Success = false,
+                    Message = "Villa name already exists."
+                });
+            }
             
             var villa = _mapper.Map<Villa>(createVillaRequest);
             
