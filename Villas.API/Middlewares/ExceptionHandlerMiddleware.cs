@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Villas.API.DTOs;
 
 namespace Villas.API.Middlewares
 {
@@ -25,10 +26,13 @@ namespace Villas.API.Middlewares
                     context.Response.StatusCode = StatusCodes.Status409Conflict;
                     context.Response.ContentType = "application/json";
 
-                    var errorResponse = new
+                    var errorResponse = new ApiResponse<object>
                     {
                         Success = false,
-                        Message = "Villa name already exists."
+                        StatusCode = StatusCodes.Status409Conflict,
+                        Message = "Villa name already exists.",
+                        Errors = new List<string> { "Duplicate villa name is not allowed." },
+                        TraceId = context.TraceIdentifier
                     };
                     await context.Response.WriteAsJsonAsync(errorResponse);
                 }
@@ -41,10 +45,13 @@ namespace Villas.API.Middlewares
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     context.Response.ContentType = "application/json";
 
-                    var errorResponse = new
+                    var errorResponse = new ApiResponse<object>
                     {
                         Success = false,
-                        Message = "Something Went Wrong."
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        Message = "Something went wrong.",
+                        Errors = new List<string> { "Internal Server Error." },
+                        TraceId = context.TraceIdentifier
                     };
                     await context.Response.WriteAsJsonAsync(errorResponse);
                 }
