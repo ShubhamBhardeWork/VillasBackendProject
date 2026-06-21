@@ -26,27 +26,36 @@ namespace Villas.API.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetVillas()
+        public async Task<ActionResult<ApiResponse<List<VillaResponse>>>> GetVillas()
         {
             var villas = await _villaRepository.GetAllAsync();
             
             var villasResponse = _mapper.Map<List<VillaResponse>>(villas);
-            
+
             //throw new Exception("Test exception for error handling validation.");
 
-            return Ok(villasResponse);
+            return Ok(new ApiResponse<List<VillaResponse>>
+            {
+                Success = true,
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Villas retrieved successfully.",
+                Data = villasResponse,
+                TraceId = HttpContext.TraceIdentifier
+            });
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetVillaById([FromRoute] int id)
+        public async Task<ActionResult<ApiResponse<VillaResponse>>> GetVillaById([FromRoute] int id)
         {
-            
             if(id < 1)
             {
-                return BadRequest(new
+                return BadRequest(new ApiResponse<object>
                 {
                     Success = false,
-                    Message = "Please enter a valid id greater than 0."
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Please enter a valid id greater than 0.",
+                    Errors = new List<string> { "Id must be greater than 0." },
+                    TraceId = HttpContext.TraceIdentifier
                 });
             }
             
@@ -54,26 +63,46 @@ namespace Villas.API.Controllers
             
             if(existingVilla is null)
             {
-                return NotFound(new
+                return NotFound(new ApiResponse<object>
                 {
                     Success = false,
-                    Message = $"Villa with Id {id} not found."
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = $"Villa with id {id} not found.",
+                    TraceId = HttpContext.TraceIdentifier
                 });
             }
-            
+
             var villaResponse = _mapper.Map<VillaResponse>(existingVilla);
-            
-            return Ok(villaResponse);
+
+            return Ok(new ApiResponse<VillaResponse>
+            {
+                Success = true,
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Villa retrieved successfully.",
+                Data = villaResponse,
+                TraceId = HttpContext.TraceIdentifier
+            });
         }
 
         [HttpPost]
-        public async Task<ActionResult<VillaResponse>> CreateVilla([FromBody] CreateVillaRequest createVillaRequest)
+        public async Task<ActionResult<ApiResponse<VillaResponse>>> CreateVilla([FromBody] CreateVillaRequest createVillaRequest)
         {
             var validationResult = await _createValidator.ValidateAsync(createVillaRequest);
 
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors);
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+
+                //return BadRequest(validationResult.Errors);
+                //return BadRequest(errorMessages);
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Validation failed.",
+                    Errors = errorMessages,
+                    TraceId = HttpContext.TraceIdentifier
+                });
             }
 
             createVillaRequest.Name = createVillaRequest.Name.Trim();
@@ -84,10 +113,13 @@ namespace Villas.API.Controllers
 
             if(isVillaNameExists)
             {
-                return Conflict(new
+                return Conflict(new ApiResponse<object>
                 {
                     Success = false,
-                    Message = "Villa name already exists."
+                    StatusCode = StatusCodes.Status409Conflict,
+                    Message = "Villa name already exists.",
+                    Errors = new List<string> { "Duplicate villa name is not allowed." },
+                    TraceId = HttpContext.TraceIdentifier
                 });
             }
             
@@ -96,19 +128,29 @@ namespace Villas.API.Controllers
             var createdVilla = await _villaRepository.CreateAsync(villa);
             
             var villaResponse = _mapper.Map<VillaResponse>(createdVilla);
-            
-            return CreatedAtAction(nameof(GetVillaById), new { id = villaResponse.Id }, villaResponse);
+
+            return CreatedAtAction(nameof(GetVillaById), new { id = villaResponse.Id }, new ApiResponse<VillaResponse>
+            {
+                Success = true,
+                StatusCode = StatusCodes.Status201Created,
+                Message = "Villa created successfully.",
+                Data = villaResponse,
+                TraceId = HttpContext.TraceIdentifier
+            });
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<VillaResponse>> UpdateVilla([FromRoute] int id, [FromBody] UpdateVillaRequest updateVillaRequest)
+        public async Task<ActionResult<ApiResponse<VillaResponse>>> UpdateVilla([FromRoute] int id, [FromBody] UpdateVillaRequest updateVillaRequest)
         {
             if(id < 1)
             {
-                return BadRequest(new
+                return BadRequest(new ApiResponse<object>
                 {
                     Success = false,
-                    Message = "please enter a valid id greater than 0."
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Please enter a valid id greater than 0.",
+                    Errors = new List<string> { "Id must be greater than 0." },
+                    TraceId = HttpContext.TraceIdentifier
                 });
             }
             
@@ -116,7 +158,18 @@ namespace Villas.API.Controllers
             
             if(!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors);
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+
+                //return BadRequest(validationResult.Errors);
+                //return BadRequest(errorMessages);
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Validation failed.",
+                    Errors = errorMessages,
+                    TraceId = HttpContext.TraceIdentifier
+                });
             }
 
             updateVillaRequest.Name = updateVillaRequest.Name.Trim();
@@ -127,10 +180,13 @@ namespace Villas.API.Controllers
 
             if (isVillaNameExists)
             {
-                return Conflict(new
+                return Conflict(new ApiResponse<object>
                 {
                     Success = false,
-                    Message = "Villa name already exists."
+                    StatusCode = StatusCodes.Status409Conflict,
+                    Message = "Villa name already exists.",
+                    Errors = new List<string> { "Duplicate villa name is not allowed." },
+                    TraceId = HttpContext.TraceIdentifier
                 });
             }
 
@@ -140,29 +196,41 @@ namespace Villas.API.Controllers
 
             if(updatedVilla is null)
             {
-                return NotFound(new 
+                return NotFound(new ApiResponse<object>
                 {
                     Success = false,
-                    Message = $"Villa with id {id} not found."
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = $"Villa with id {id} not found.",
+                    TraceId = HttpContext.TraceIdentifier
                 });
             }
             
             
             var villaResponse = _mapper.Map<VillaResponse>(updatedVilla);
-            
-            return Ok(villaResponse);
+
+            return Ok(new ApiResponse<VillaResponse>
+            {
+                Success = true,
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Villa updated successfully.",
+                Data = villaResponse,
+                TraceId = HttpContext.TraceIdentifier
+            });
         }
         
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteVilla([FromRoute] int id)
+        public async Task<ActionResult<ApiResponse<object>>> DeleteVilla([FromRoute] int id)
         {
             if(id < 1)
             {
-                return BadRequest(new
+                return BadRequest(new ApiResponse<object>
                 {
                     Success = false,
-                    Message = "please enter a valid id greater than 0."
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Please enter a valid id greater than 0.",
+                    Errors = new List<string> { "Id must be greater than 0." },
+                    TraceId = HttpContext.TraceIdentifier
                 });
             }
             
@@ -170,14 +238,22 @@ namespace Villas.API.Controllers
             
             if(!isVillaDeleted)
             {
-                return NotFound(new
+                return NotFound(new ApiResponse<object>
                 {
                     Success = false,
-                    Message = $"Villa with Id {id} not found."
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = $"Villa with Id {id} not found.",
+                    TraceId = HttpContext.TraceIdentifier
                 });
             }
 
-            return NoContent();
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Villa deleted successfully.",
+                TraceId = HttpContext.TraceIdentifier
+            });
         }
 
     }
