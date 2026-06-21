@@ -172,6 +172,19 @@ namespace Villas.API.Controllers
                 });
             }
 
+            var existingVilla = await _villaRepository.GetByIdForUpdateAsync(id);
+
+            if (existingVilla is null)
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = $"Villa with id {id} not found.",
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+
             updateVillaRequest.Name = updateVillaRequest.Name.Trim();
 
             var villaName = updateVillaRequest.Name;
@@ -190,22 +203,10 @@ namespace Villas.API.Controllers
                 });
             }
 
-            var villa = _mapper.Map<Villa>(updateVillaRequest);
-            
-            var updatedVilla = await _villaRepository.UpdateAsync(id, villa);
+            _mapper.Map(updateVillaRequest, existingVilla);
 
-            if(updatedVilla is null)
-            {
-                return NotFound(new ApiResponse<object>
-                {
-                    Success = false,
-                    StatusCode = StatusCodes.Status404NotFound,
-                    Message = $"Villa with id {id} not found.",
-                    TraceId = HttpContext.TraceIdentifier
-                });
-            }
-            
-            
+            var updatedVilla = await _villaRepository.UpdateAsync(existingVilla);
+
             var villaResponse = _mapper.Map<VillaResponse>(updatedVilla);
 
             return Ok(new ApiResponse<VillaResponse>
