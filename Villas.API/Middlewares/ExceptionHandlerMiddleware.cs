@@ -14,6 +14,8 @@ namespace Villas.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+            var traceId = context.TraceIdentifier;
+
             try
             {
                 await _next(context);
@@ -26,14 +28,11 @@ namespace Villas.API.Middlewares
                     context.Response.StatusCode = StatusCodes.Status409Conflict;
                     context.Response.ContentType = "application/json";
 
-                    var errorResponse = new ApiResponse<object>
-                    {
-                        Success = false,
-                        StatusCode = StatusCodes.Status409Conflict,
-                        Message = "Villa name already exists.",
-                        Errors = new List<string> { "Duplicate villa name is not allowed." },
-                        TraceId = context.TraceIdentifier
-                    };
+                    var errorResponse = ApiResponse<object>.Conflict(
+                        "Villa name already exists.", 
+                        traceId, 
+                        new List<string> { "Duplicate villa name is not allowed." }
+                    );
                     await context.Response.WriteAsJsonAsync(errorResponse);
                 }
             }
@@ -45,14 +44,11 @@ namespace Villas.API.Middlewares
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     context.Response.ContentType = "application/json";
 
-                    var errorResponse = new ApiResponse<object>
-                    {
-                        Success = false,
-                        StatusCode = StatusCodes.Status500InternalServerError,
-                        Message = "Something went wrong.",
-                        Errors = new List<string> { "Internal Server Error." },
-                        TraceId = context.TraceIdentifier
-                    };
+                    var errorResponse = ApiResponse<object>.InternalServerError(
+                        "Something went wrong", 
+                        traceId, 
+                        new List<string> { "Internal Server Error." }
+                    );
                     await context.Response.WriteAsJsonAsync(errorResponse);
                 }
             }
