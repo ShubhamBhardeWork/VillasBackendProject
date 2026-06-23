@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Villas.API.Data;
+using Villas.API.Mappings;
 using Villas.API.Middlewares;
 using Villas.API.Repositories;
 using Villas.API.Validators;
@@ -25,8 +26,8 @@ namespace Villas.API
             //builder.Services.AddAutoMapper(typeof(VillaMappingProfile)); (old way)
             builder.Services.AddAutoMapper(cfg =>
             {
-                cfg.AddMaps(typeof(Program).Assembly);
-            });
+                //cfg.AddMaps(typeof(VillaMappingProfile).Assembly);
+            }, typeof(VillaMappingProfile));
            
 
             builder.Services.AddOpenApi();
