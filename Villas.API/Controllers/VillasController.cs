@@ -26,6 +26,8 @@ namespace Villas.API.Controllers
 
 
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<List<VillaResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse<List<VillaResponse>>>> GetVillas()
         {
             var villas = await _villaRepository.GetAllAsync();
@@ -42,6 +44,10 @@ namespace Villas.API.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<VillaResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse<VillaResponse>>> GetVillaById([FromRoute] int id)
         {
             if(id < 1)
@@ -73,6 +79,10 @@ namespace Villas.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<VillaResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse<VillaResponse>>> CreateVilla([FromBody] CreateVillaRequest createVillaRequest)
         {
             var validationResult = await _createValidator.ValidateAsync(createVillaRequest);
@@ -117,6 +127,11 @@ namespace Villas.API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<VillaResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse<VillaResponse>>> UpdateVilla([FromRoute] int id, [FromBody] UpdateVillaRequest updateVillaRequest)
         {
             if (id < 1)
@@ -181,6 +196,10 @@ namespace Villas.API.Controllers
         
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse<object>>> DeleteVilla([FromRoute] int id)
         {
             if(id < 1)
