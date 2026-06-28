@@ -11,6 +11,7 @@ namespace Villas.API.Data
         }
 
         public DbSet<Villa> Villas { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -85,6 +86,15 @@ namespace Villas.API.Data
 
             // unique indexing
             modelBuilder.Entity<Villa>().HasIndex(v => v.Name).IsUnique();
+
+            modelBuilder.Entity<User>().HasKey(u => u.Id);
+            modelBuilder.Entity<User>().Property(u => u.Name).IsRequired().HasMaxLength(30);
+            modelBuilder.Entity<User>().Property(u => u.Email).IsRequired().HasMaxLength(100);
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+            modelBuilder.Entity<User>().Property(u => u.Password).IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<User>().Property(u => u.Role).IsRequired().HasMaxLength(20);
+            modelBuilder.Entity<User>().Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
         }
 
     }
